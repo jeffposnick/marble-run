@@ -12,6 +12,7 @@ import { MarblesView } from "./render/marbles-view.ts";
 import { createStage } from "./render/scene.ts";
 import { TrackView } from "./render/track-view.ts";
 import { Builder, type Tool } from "./app/builder.ts";
+import { setupPwa } from "./app/pwa.ts";
 import { $, buildToolButtons, createAnnouncer, installToolbarFallback, storage } from "./app/ui.ts";
 
 const STORAGE_KEY = "marble-run:board";
@@ -28,6 +29,7 @@ async function main(): Promise<void> {
   const canvas = $<HTMLCanvasElement>("board");
   const announce = createAnnouncer($("status"));
   const stage = createStage(canvas);
+  setupPwa(announce);
 
   const board = new Board();
   board.load(storage.read(STORAGE_KEY) ?? DEMO_BOARD);

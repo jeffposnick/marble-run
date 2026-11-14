@@ -12,6 +12,7 @@
     />
     <title>Marble Run</title>
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <script type="module" src="/src/main.ts"></script>
   </head>
   <body>
@@ -33,6 +34,13 @@
         <button type="button" id="clear-marbles">Clear marbles</button>
         <button type="button" id="reset">Load demo</button>
         <button type="button" id="clear-board">Clear board</button>
+        <button type="button" id="update" class="primary" hidden>Update</button>
+        <button type="button" id="install" hidden>
+          <svg aria-hidden="true" viewBox="0 0 24 24">
+            <path d="M12 4v11M7 10l5 5 5-5M5 20h14" />
+          </svg>
+          Install app
+        </button>
         <button type="button" id="help-open" aria-keyshortcuts="Shift+/">Help</button>
       </div>
     </header>
@@ -149,6 +157,10 @@
           </tr>
         </tbody>
       </table>
+      <p id="ios-hint" hidden>
+        To install Marble Run as an app, tap <strong>Share</strong>, then
+        <strong>Add to Home Screen</strong>.
+      </p>
       <form method="dialog">
         <button type="submit" autofocus>Close</button>
       </form>
@@ -162,6 +174,14 @@
         <button type="submit" value="clear" class="danger">Clear board</button>
       </form>
     </dialog>
+
+    <div id="pwa-toast" class="pwa-toast" popover="manual" role="region" aria-label="Notifications">
+      <span id="pwa-text"></span>
+      <button type="button" id="pwa-action" class="primary" hidden>Update</button>
+      <button type="button" id="pwa-close" aria-label="Dismiss">
+        <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" /></svg>
+      </button>
+    </div>
 
     <noscript><p class="noscript">Marble Run needs JavaScript and WebGL to play.</p></noscript>
   </body>

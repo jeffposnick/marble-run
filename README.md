@@ -25,6 +25,14 @@ npm run preview   # serve the production build
 
 Your run is saved in the browser automatically.
 
+### Offline and installing
+
+Marble Run is a Progressive Web App. After the first visit everything it needs is cached, so it
+works with no network at all. Browsers that support installing web apps show an **Install app**
+button in the top bar; on iPhone and iPad, use **Share → Add to Home Screen**. When a new version
+is deployed, an **Update** button appears; the page only reloads when you choose it, so an update
+never interrupts a build.
+
 ### Pieces
 
 | Piece       | Drop     | Notes                                     |
@@ -43,6 +51,7 @@ Your run is saved in the browser automatically.
 | Rendering | [three.js](https://threejs.org/) (WebGL 2)                              |
 | Physics   | [Rapier](https://rapier.rs/) (Rust compiled to WASM), fixed 120 Hz step |
 | Build     | Vite + TypeScript                                                       |
+| Offline   | Workbox via `@vite-pwa/workbox-*` (no `vite-plugin-pwa`)                |
 | Quality   | oxlint, oxfmt, Vitest                                                   |
 
 - **Snapping model** (`src/model/board.ts`): every piece occupies one grid cell. Its entry and
@@ -61,6 +70,13 @@ Your run is saved in the browser automatically.
   wobble. Rapier collision events, measured by how much they change a marble's velocity, trigger
   glassy "tinks" between marbles and plastic knocks on the track. Sounds are panned and
   attenuated by their position relative to the camera.
+- **PWA**: the service worker is `src/sw.ts`, written against `@vite-pwa/workbox-swkit` (subpath
+  imports only) and bundled by `@vite-pwa/workbox-build`'s `ViteWorkboxPWAPlugin`, which injects
+  the precache list. It precaches every built file, including the ~4.3 MB physics chunk with its
+  inlined WASM (`maximumFileSizeToCacheInBytes` is raised for it). The manifest is `MANIFEST` in
+  `vite.config.ts`. `src/app/pwa.ts` registers the worker with `@vite-pwa/workbox-window`, shows
+  the "ready offline" and "update" toast, and handles the install button. New runtime asset types
+  must be added to `globPatterns` to be precached. The dev server registers no service worker.
 - **Rendering** (`src/render/`): marbles are interpolated between physics steps so motion is
   smooth at any display refresh rate. The canvas is sized to its exact device-pixel box with a
   `ResizeObserver`.
@@ -75,6 +91,24 @@ Your run is saved in the browser automatically.
 | `npm run lint`   | oxlint                                       |
 | `npm run format` | Format with oxfmt (`format:check` to verify) |
 | `npm run check`  | Format check, lint, type-check and tests     |
+
+### PWA tools
+
+| Command                            | What it does                                                                 |
+| ---------------------------------- | ---------------------------------------------------------------------------- |
+| `node tools/pwa-check.cjs`         | End-to-end check of a production build (see below)                           |
+| `node tools/icons/render.cjs`      | Renders `tools/icons/icon.svg` to the PNG app icons                          |
+| `node tools/icons/screenshots.cjs` | Captures the install-dialog screenshots (needs `npm run dev -- --port 5174`) |
+
+To run the PWA check, serve the build with a server that re-reads files on every request:
+
+```sh
+npm run build && python3 -m http.server 4175 --directory dist &
+node tools/pwa-check.cjs --update
+```
+
+It confirms the app is installable, works offline (physics included), and that a rebuilt version
+is offered as an update and loads when chosen.
 
 The physics test drops a marble on the demo track in Node, with no browser, and checks that it
 reaches the finish cup. Use it to catch geometry or tuning regressions.
