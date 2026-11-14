@@ -18,6 +18,7 @@ npm run preview   # serve the production build
 - A piece placed next to an open track end (green arrow) **snaps on automatically**, taking the
   right height and direction. Otherwise it goes at the build height shown in the toolbar.
 - **Drop marble** releases a marble from every start piece. **Auto-drop** keeps them coming.
+- **Sound** toggles the sound effects (or press `S`).
 - Drag to orbit, right-drag to pan, scroll to zoom.
 - Everything works from the keyboard too: focus the board, use the arrow keys to move the cursor,
   and press Enter to place. Press `?` for the full list of shortcuts.
@@ -54,6 +55,12 @@ Your run is saved in the browser automatically.
   Vertices are snapped to a fine grid so the seams between pieces are welded, and
   `FIX_INTERNAL_EDGES` removes the bumps a marble would otherwise feel at triangle edges. Marbles
   are glass-density spheres with continuous collision detection.
+- **Sound** (`src/audio/sound.ts`): every effect is synthesised live with the Web Audio API, with
+  no audio files. Each rolling marble drives filtered noise whose pitch and loudness follow its
+  speed, plus a narrow resonance for the hollow plastic channel and a once-per-revolution
+  wobble. Rapier collision events, measured by how much they change a marble's velocity, trigger
+  glassy "tinks" between marbles and plastic knocks on the track. Sounds are panned and
+  attenuated by their position relative to the camera.
 - **Rendering** (`src/render/`): marbles are interpolated between physics steps so motion is
   smooth at any display refresh rate. The canvas is sized to its exact device-pixel box with a
   `ResizeObserver`.

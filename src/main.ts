@@ -1,4 +1,6 @@
 import "./style.css";
+import { Vector3 } from "three";
+import { MarbleSounds, type Placer } from "./audio/sound.ts";
 import { DEFAULT_LEVEL, MAX_MARBLES } from "./config.ts";
 import { trackCollisionMesh } from "./geometry/track.ts";
 import { Board } from "./model/board.ts";
@@ -13,6 +15,9 @@ import { Builder, type Tool } from "./app/builder.ts";
 import { $, buildToolButtons, createAnnouncer, installToolbarFallback, storage } from "./app/ui.ts";
 
 const STORAGE_KEY = "marble-run:board";
+const SOUND_KEY = "marble-run:sound";
+/** Sounds closer to the camera than this (in metres) play at full volume. */
+const SOUND_NEAR = 6;
 const AUTO_DROP_SECONDS = 1.5;
 /** Marbles resting on the table this long are tidied away. */
 const FLOOR_REST_SECONDS = 3;
@@ -66,6 +71,34 @@ async function main(): Promise<void> {
   const help = $<HTMLDialogElement>("help");
   $("help-open").addEventListener("click", () => help.showModal());
 
+  // ---------- Sound ----------
+  const sounds = new MarbleSounds(storage.read(SOUND_KEY) !== false);
+  const soundButton = $("sound");
+  const showSound = () => soundButton.setAttribute("aria-pressed", String(sounds.enabled));
+  showSound();
+  const setSound = (on: boolean) => {
+    sounds.setEnabled(on);
+    storage.write(SOUND_KEY, on);
+    showSound();
+    announce(on ? "Sound on" : "Sound off");
+  };
+  soundButton.addEventListener("click", () => setSound(!sounds.enabled));
+  // Browsers only start audio from a user gesture.
+  for (const type of ["pointerdown", "keydown"] as const) {
+    document.addEventListener(type, () => sounds.unlock(), { capture: true });
+  }
+  document.addEventListener("visibilitychange", () => sounds.setHidden(document.hidden));
+  const scratch = new Vector3();
+  const placeSound: Placer = (x, y, z) => {
+    scratch.set(x, y, z);
+    const distance = scratch.distanceTo(stage.camera.position);
+    scratch.project(stage.camera);
+    return {
+      pan: Math.max(-1, Math.min(1, scratch.x)) * 0.7,
+      gain: Math.min(1, SOUND_NEAR / Math.max(distance, 0.001)),
+    };
+  };
+
   // ---------- Physics ----------
   await initPhysics();
   const physics = new MarblePhysics();
@@ -117,6 +150,7 @@ async function main(): Promise<void> {
   const pauseButton = $("pause");
   const setPaused = (value: boolean) => {
     paused = value;
+    if (paused) sounds.hush();
     pauseButton.textContent = paused ? "Resume" : "Pause";
     announce(paused ? "Paused" : "Resumed");
   };
@@ -174,6 +208,7 @@ async function main(): Promise<void> {
       canvas.focus();
     } else if (key === "m") dropMarbles();
     else if (key === "p") setPaused(!paused);
+    else if (key === "s") setSound(!sounds.enabled);
     else if (event.key === "?") help.showModal();
     else return;
     event.preventDefault();
@@ -222,6 +257,7 @@ async function main(): Promise<void> {
         marblesView.capture(physics.marbles());
       }
       updateMarbles(elapsed);
+      sounds.update(physics.marbles(), physics.takeImpacts(), placeSound);
     }
     marblesView.interpolate(paused ? 1 : accumulator / physics.dt);
     stage.render();

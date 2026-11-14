@@ -5,7 +5,7 @@ import { Board, type PieceInit } from "../src/model/board.ts";
 import { DEMO_BOARD } from "../src/model/demo.ts";
 import { PIECE_TYPES } from "../src/model/pieces.ts";
 import { inFinishCup, spawnPoint } from "../src/model/run.ts";
-import { initPhysics, MarblePhysics } from "../src/physics/world.ts";
+import { initPhysics, MarblePhysics, type Impact } from "../src/physics/world.ts";
 
 beforeAll(() => initPhysics());
 
@@ -74,5 +74,30 @@ describe("marble physics", () => {
     ];
     const result = runMarble(pieces, 8);
     expect(result.last.y).toBeLessThan(0.2);
+  });
+});
+
+describe("sound events", () => {
+  it("reports rolling surfaces and collisions", () => {
+    const board = new Board();
+    board.load(DEMO_BOARD);
+    const physics = new MarblePhysics();
+    physics.setTrack(trackCollisionMesh(board.pieces));
+    const s = spawnPoint(board.pieces.find((p) => p.type === "start")!);
+    // One marble dropped onto the track, and a second dropped onto the first.
+    physics.addMarble(s.x, s.y + 0.15, s.z);
+    physics.addMarble(s.x, s.y + 0.5, s.z);
+    const impacts: Impact[] = [];
+    let rollingSteps = 0;
+    for (let i = 0; i < 4 * PHYSICS_HZ; i++) {
+      physics.step();
+      impacts.push(...physics.takeImpacts());
+      for (const m of physics.marbles()) if (m.surface === "track" && m.speed > 0.1) rollingSteps++;
+    }
+    physics.free();
+    expect(rollingSteps).toBeGreaterThan(PHYSICS_HZ);
+    expect(impacts.some((i) => i.kind === "track" && i.strength > 1.5)).toBe(true);
+    expect(impacts.some((i) => i.kind === "glass" && i.strength > 0.5)).toBe(true);
+    expect(impacts.every((i) => Number.isFinite(i.strength))).toBe(true);
   });
 });
