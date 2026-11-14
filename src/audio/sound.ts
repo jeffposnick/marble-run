@@ -219,7 +219,11 @@ class RollVoice {
   }
 }
 
-/** Glass on glass: a few bright, inharmonic partials that die away in a few tens of ms. */
+/**
+ * Glass on glass: a hard, dry "clack". Two solid spheres meet for a fraction of a millisecond,
+ * so the sound is mostly a sharp broadband snap; the glass barely gets to ring, so its tones
+ * are heavily damped instead of left to sing (which sounds like a "plink").
+ */
 function glassClick(
   ctx: AudioContext,
   noise: AudioBuffer,
@@ -229,35 +233,38 @@ function glassClick(
 ): void {
   const t = ctx.currentTime;
   const v = Math.min(1, impact.strength / 1.5);
-  const loudness = (0.08 + 0.5 * v ** 0.8) * where.gain;
+  const loudness = (0.1 + 0.55 * v ** 0.8) * where.gain;
   if (loudness < 0.002) return;
   const panner = new StereoPannerNode(ctx, { pan: where.pan });
   panner.connect(out);
 
-  const base = 2600 + Math.random() * 1500;
-  const partials: [ratio: number, amp: number, decay: number][] = [
-    [1, 1, 0.07],
-    [1.51, 0.55, 0.05],
-    [2.18, 0.35, 0.035],
-    [2.93, 0.2, 0.022],
+  // The snap: a burst of noise centred in the upper mids, harder hits a touch longer and brighter.
+  burst(ctx, noise, panner, t, 0.008 + 0.006 * v, loudness * 1.4, {
+    type: "bandpass",
+    frequency: (2000 + 900 * v) * jitter(),
+    Q: 1.4,
+  });
+  // The crack of first contact.
+  burst(ctx, noise, panner, t, 0.0025, loudness * 0.7, { type: "highpass", frequency: 5000 });
+
+  // A little hard, hollow body under the snap, gone within about 10 ms.
+  const base = 1300 * jitter();
+  const tones: [ratio: number, amp: number, decay: number][] = [
+    [1, 0.45, 0.006],
+    [2.32, 0.25, 0.004],
+    [0.42, 0.3, 0.005],
   ];
-  const ring = 0.7 + 0.5 * v;
-  for (const [ratio, amp, decay] of partials) {
-    const osc = new OscillatorNode(ctx, {
-      frequency: base * ratio * (1 + (Math.random() - 0.5) * 0.02),
-    });
+  for (const [ratio, amp, decay] of tones) {
+    const osc = new OscillatorNode(ctx, { type: "triangle", frequency: base * ratio });
     const env = new GainNode(ctx, { gain: 0 });
     env.gain.setValueAtTime(0, t);
-    env.gain.linearRampToValueAtTime(loudness * amp, t + 0.0015);
-    env.gain.setTargetAtTime(0, t + 0.0015, decay * ring);
+    env.gain.linearRampToValueAtTime(loudness * amp, t + 0.0008);
+    env.gain.setTargetAtTime(0, t + 0.0008, decay);
     osc.connect(env).connect(panner);
     osc.start(t);
-    osc.stop(t + decay * ring * 6);
+    osc.stop(t + decay * 8);
   }
-
-  // The initial "tick" of contact.
-  burst(ctx, noise, panner, t, 0.004, loudness * 0.6, { type: "highpass", frequency: 4000 });
-  setTimeout(() => panner.disconnect(), 800);
+  setTimeout(() => panner.disconnect(), 500);
 }
 
 /** A marble landing on the plastic track (or the table): a short, hollow knock. */
@@ -302,6 +309,11 @@ function surfaceKnock(
     Q: 1.5,
   });
   setTimeout(() => panner.disconnect(), 600);
+}
+
+/** A random factor within ±12.5%, so repeated hits don't sound identical. */
+function jitter(): number {
+  return 1 + (Math.random() - 0.5) * 0.25;
 }
 
 /** A short, filtered noise burst. */
