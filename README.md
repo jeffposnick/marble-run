@@ -71,3 +71,10 @@ Your run is saved in the browser automatically.
 
 The physics test drops a marble on the demo track in Node, with no browser, and checks that it
 reaches the finish cup. Use it to catch geometry or tuning regressions.
+
+## Deployment
+
+Every push to `main` (including merged pull requests) runs
+`.github/workflows/deploy.yml`. It checks and builds the project, then publishes `dist/` to
+GitHub Pages. To make this work, set **Settings → Pages → Build and deployment → Source** to
+**GitHub Actions** once.
