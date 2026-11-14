@@ -16,4 +16,7 @@
   worker is `src/sw.ts`, the manifest is `MANIFEST` in `vite.config.ts`, and registration is in
   `src/app/pwa.ts`. New runtime asset types must be added to `globPatterns` to be precached. After
   changing PWA behaviour, run `tools/pwa-check.cjs` (see README.md).
+- Sample runs live in `src/model/samples.ts`. Any new or changed sample must pass
+  `test/samples.test.ts` (every marble reaches a cup, even when nudged). Physics is chaotic, so
+  prefer designs that pass with margin: fast marbles fly out of curves and overshoot cups.
 - After changing the top bar, check that it stays on one row from 320px up.

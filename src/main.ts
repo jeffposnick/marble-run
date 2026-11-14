@@ -5,6 +5,7 @@ import { DEFAULT_LEVEL, MAX_MARBLES } from "./config.ts";
 import { trackCollisionMesh } from "./geometry/track.ts";
 import { Board } from "./model/board.ts";
 import { DEMO_BOARD } from "./model/demo.ts";
+import { SAMPLES } from "./model/samples.ts";
 import { PIECE_TYPES, PIECES } from "./model/pieces.ts";
 import { inFinishCup, spawnPoint } from "./model/run.ts";
 import { initPhysics, MarblePhysics } from "./physics/world.ts";
@@ -13,6 +14,7 @@ import { createStage } from "./render/scene.ts";
 import { TrackView } from "./render/track-view.ts";
 import { Builder, type Tool } from "./app/builder.ts";
 import { setupPwa } from "./app/pwa.ts";
+import { setupSamplesDialog } from "./app/samples-dialog.ts";
 import { $, buildToolButtons, createAnnouncer, installToolbarFallback, storage } from "./app/ui.ts";
 
 const STORAGE_KEY = "marble-run:board";
@@ -66,10 +68,6 @@ async function main(): Promise<void> {
   $("rotate").addEventListener("click", () => builder.rotate());
   $("raise").addEventListener("click", () => builder.changeHeight(1));
   $("lower").addEventListener("click", () => builder.changeHeight(-1));
-  $("reset").addEventListener("click", () => {
-    board.load(DEMO_BOARD);
-    announce("Demo run loaded");
-  });
   // Choosing anything in the narrow-screen "More" menu closes it.
   const moreMenu = $("more-menu");
   moreMenu.addEventListener("click", (event) => {
@@ -191,6 +189,15 @@ async function main(): Promise<void> {
     clearMarbles();
     announce("Marbles cleared");
   });
+
+  const samplesDialog = $<HTMLDialogElement>("samples");
+  setupSamplesDialog(samplesDialog, SAMPLES, (sample) => {
+    board.load(sample.board);
+    clearMarbles();
+    announce(`${sample.name} loaded`);
+    canvas.focus();
+  });
+  $("samples-open").addEventListener("click", () => samplesDialog.showModal());
 
   const confirmClear = $<HTMLDialogElement>("confirm-clear");
   $("clear-board").addEventListener("click", () => confirmClear.showModal());

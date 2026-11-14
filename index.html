@@ -62,7 +62,7 @@
         <!-- Secondary actions: inline on wide screens, behind "More" on narrow ones. -->
         <div id="more-menu" class="more-menu" popover>
           <button type="button" id="clear-marbles">Clear marbles</button>
-          <button type="button" id="reset">Load demo</button>
+          <button type="button" id="samples-open">Samples</button>
           <button type="button" id="clear-board">Clear board</button>
           <button type="button" id="update" class="primary" hidden>Update</button>
           <button type="button" id="install" hidden>
@@ -206,6 +206,18 @@
       </p>
       <form method="dialog">
         <button type="submit" autofocus>Close</button>
+      </form>
+    </dialog>
+
+    <dialog id="samples" class="samples" closedby="any" aria-labelledby="samples-title">
+      <h2 id="samples-title">Sample runs</h2>
+      <p>
+        Pick a run to load, then press <strong>Drop marble</strong>. It replaces what’s on the
+        board.
+      </p>
+      <ul></ul>
+      <form method="dialog">
+        <button type="submit">Cancel</button>
       </form>
     </dialog>
 

@@ -17,6 +17,8 @@ npm run preview   # serve the production build
 - Pick a piece from the toolbar, then click a square on the table to place it.
 - A piece placed next to an open track end (green arrow) **snaps on automatically**, taking the
   right height and direction. Otherwise it goes at the build height shown in the toolbar.
+- **Samples** opens a gallery of ready-made runs to load: corkscrews, a figure eight with a
+  bridge, a woven lattice, ski-jump leaps and more.
 - **Drop marble** releases a marble from every start piece. **Auto-drop** keeps them coming.
 - **Sound** toggles the sound effects (or press `S`).
 - Drag to orbit, right-drag to pan, scroll to zoom.
@@ -57,6 +59,12 @@ never interrupts a build.
 - **Snapping model** (`src/model/board.ts`): every piece occupies one grid cell. Its entry and
   exit ports sit at whole "levels" (10 cm). A piece's exit is `drop` levels below its entry, so
   joining an exit to the next piece's entry fixes that piece's height and rotation.
+- **Samples** (`src/model/samples.ts`): each sample run is written as routes, one letter per piece
+  (`s` straight, `r` ramp, `l`/`t` curve left/right, `f` finish), which `path()` in
+  `src/model/track-path.ts` lays out the way a player would snap them together. Helpers turn,
+  mirror and shift runs to make symmetric designs. `test/samples.test.ts` loads every sample and
+  checks, in the physics engine, that every marble reaches a finish cup, including when nudged
+  slightly at the start.
 - **Geometry** (`src/geometry/track.ts`): each piece sweeps a U-shaped channel profile along its
   centre line. Heights follow a cubic Hermite curve whose gradient at both ends is the same fixed
   slope, so pieces meet without a kink. The same triangles drive both rendering and physics.
