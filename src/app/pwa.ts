@@ -123,6 +123,9 @@ export function setupPwa(announce: Announce): void {
         const updateButton = $<HTMLButtonElement>("update");
         updateButton.addEventListener("click", update, { once: true });
         updateButton.hidden = false;
+        // On narrow screens the button sits in the "More" menu, so flag the menu button too.
+        document.querySelector<HTMLElement>(".update-dot")!.hidden = false;
+        $("more").setAttribute("aria-label", "More actions, update available");
         toast("A new version of Marble Run is ready.", { label: "Update", run: update });
       },
       onOfflineReady() {

@@ -19,29 +19,72 @@
     <header class="topbar">
       <h1>Marble Run</h1>
       <div class="actions">
-        <button type="button" class="primary" id="drop" aria-keyshortcuts="M">
+        <button
+          type="button"
+          class="primary"
+          id="drop"
+          aria-label="Drop marble"
+          aria-keyshortcuts="M"
+        >
           <svg aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="7" /></svg>
-          Drop marble
+          <span>Drop<span class="wide-label"> marble</span></span>
         </button>
-        <button type="button" id="auto" aria-pressed="false">Auto-drop</button>
-        <button type="button" id="pause" aria-keyshortcuts="P">Pause</button>
-        <button type="button" id="sound" aria-pressed="true" aria-keyshortcuts="S">
+        <button
+          type="button"
+          id="auto"
+          aria-label="Auto-drop"
+          title="Auto-drop"
+          aria-pressed="false"
+        >
+          <svg aria-hidden="true" viewBox="0 0 24 24">
+            <path d="M4 12a8 8 0 0 1 14-5.3M20 12a8 8 0 0 1-14 5.3M18 3v4h-4M6 21v-4h4" />
+          </svg>
+          <span class="label">Auto<span class="wide-label">-drop</span></span>
+        </button>
+        <button type="button" id="pause" aria-label="Pause" title="Pause (P)" aria-keyshortcuts="P">
+          <svg aria-hidden="true" viewBox="0 0 24 24">
+            <path id="pause-icon" d="M9 5v14M15 5v14" />
+          </svg>
+          <span class="label" id="pause-label">Pause</span>
+        </button>
+        <button
+          type="button"
+          id="sound"
+          aria-label="Sound"
+          aria-pressed="true"
+          aria-keyshortcuts="S"
+        >
           <svg aria-hidden="true" viewBox="0 0 24 24">
             <path d="M4 9v6h4l5 4V5L8 9zM16 9a4 4 0 0 1 0 6M18.5 6.5a7.5 7.5 0 0 1 0 11" />
           </svg>
-          Sound
+          <span class="wide-label">Sound</span>
         </button>
-        <button type="button" id="clear-marbles">Clear marbles</button>
-        <button type="button" id="reset">Load demo</button>
-        <button type="button" id="clear-board">Clear board</button>
-        <button type="button" id="update" class="primary" hidden>Update</button>
-        <button type="button" id="install" hidden>
+        <!-- Secondary actions: inline on wide screens, behind "More" on narrow ones. -->
+        <div id="more-menu" class="more-menu" popover>
+          <button type="button" id="clear-marbles">Clear marbles</button>
+          <button type="button" id="reset">Load demo</button>
+          <button type="button" id="clear-board">Clear board</button>
+          <button type="button" id="update" class="primary" hidden>Update</button>
+          <button type="button" id="install" hidden>
+            <svg aria-hidden="true" viewBox="0 0 24 24">
+              <path d="M12 4v11M7 10l5 5 5-5M5 20h14" />
+            </svg>
+            Install app
+          </button>
+          <button type="button" id="help-open" aria-keyshortcuts="Shift+/">Help</button>
+        </div>
+        <button
+          type="button"
+          id="more"
+          class="more"
+          popovertarget="more-menu"
+          aria-label="More actions"
+        >
           <svg aria-hidden="true" viewBox="0 0 24 24">
-            <path d="M12 4v11M7 10l5 5 5-5M5 20h14" />
+            <path d="M5 12h.01M12 12h.01M19 12h.01" stroke-width="3" />
           </svg>
-          Install app
+          <span class="update-dot" hidden></span>
         </button>
-        <button type="button" id="help-open" aria-keyshortcuts="Shift+/">Help</button>
       </div>
     </header>
 

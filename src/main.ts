@@ -70,6 +70,13 @@ async function main(): Promise<void> {
     board.load(DEMO_BOARD);
     announce("Demo run loaded");
   });
+  // Choosing anything in the narrow-screen "More" menu closes it.
+  const moreMenu = $("more-menu");
+  moreMenu.addEventListener("click", (event) => {
+    if ((event.target as Element).closest("button") && moreMenu.matches(":popover-open")) {
+      moreMenu.hidePopover();
+    }
+  });
   const help = $<HTMLDialogElement>("help");
   $("help-open").addEventListener("click", () => help.showModal());
 
@@ -153,7 +160,12 @@ async function main(): Promise<void> {
   const setPaused = (value: boolean) => {
     paused = value;
     if (paused) sounds.hush();
-    pauseButton.textContent = paused ? "Resume" : "Pause";
+    const label = paused ? "Resume" : "Pause";
+    $("pause-label").textContent = label;
+    pauseButton.setAttribute("aria-label", label);
+    pauseButton.title = `${label} (P)`;
+    // Two bars while running; a play triangle while paused.
+    $("pause-icon").setAttribute("d", paused ? "M8 5l11 7-11 7z" : "M9 5v14M15 5v14");
     announce(paused ? "Paused" : "Resumed");
   };
 

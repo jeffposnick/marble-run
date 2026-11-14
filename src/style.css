@@ -60,6 +60,7 @@ body {
 
 h1 {
   margin: 0;
+  white-space: nowrap;
   font-size: 1.15rem;
   letter-spacing: 0.01em;
 }
@@ -180,6 +181,122 @@ button {
   display: flex;
   flex-wrap: wrap;
   gap: var(--gap);
+
+  & button {
+    white-space: nowrap;
+  }
+}
+
+/* Wide screens: the secondary actions sit inline, as if the menu weren't there. */
+.more-menu {
+  display: contents;
+}
+
+.more {
+  display: none;
+  position: relative;
+}
+
+.update-dot {
+  position: absolute;
+  inset-block-start: 0.3rem;
+  inset-inline-end: 0.3rem;
+  inline-size: 0.6rem;
+  block-size: 0.6rem;
+  border-radius: 50%;
+  background: var(--accent);
+  border: 2px solid var(--surface);
+}
+
+/* Narrower screens: one row of the main actions, with the rest behind "More". */
+@media (max-width: 1140px) {
+  .topbar {
+    flex-wrap: nowrap;
+  }
+
+  .actions {
+    flex-wrap: nowrap;
+  }
+
+  .more {
+    display: inline-flex;
+  }
+
+  .more-menu {
+    position: fixed;
+    inset: auto;
+    inset-block-start: 3.75rem;
+    inset-inline-end: 0.75rem;
+    margin: 0;
+    padding: 0.4rem;
+    flex-direction: column;
+    gap: 0.25rem;
+    min-inline-size: 12rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface);
+    color: var(--text);
+    box-shadow: 0 8px 24px rgb(0 0 0 / 0.2);
+
+    &:not(:popover-open) {
+      display: none;
+    }
+
+    &:popover-open {
+      display: flex;
+    }
+
+    & button {
+      justify-content: start;
+      border-color: transparent;
+    }
+
+    & button.primary {
+      border-color: var(--accent);
+    }
+  }
+
+  /* Hang the menu from the "More" button where anchor positioning is supported. */
+  @supports (position-anchor: --more) {
+    .more {
+      anchor-name: --more;
+    }
+
+    .more-menu {
+      position-anchor: --more;
+      inset-block-start: calc(anchor(bottom) + 0.25rem);
+      inset-inline-end: anchor(right);
+    }
+  }
+}
+
+/* Phones: shorter labels, and the title steps aside (it stays for screen readers). */
+@media (max-width: 720px) {
+  .wide-label {
+    display: none;
+  }
+}
+
+@media (max-width: 560px) {
+  .topbar h1 {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  .topbar {
+    justify-content: center;
+  }
+}
+
+/* The smallest phones: icons only for Auto-drop and Pause (their names stay in aria-label). */
+@media (max-width: 420px) {
+  .actions .label {
+    display: none;
+  }
 }
 
 /* ---------- Stage ---------- */
@@ -376,6 +493,10 @@ dialog::backdrop {
 @media (max-width: 640px) {
   .actions button:not(.primary) {
     padding-inline: 0.55rem;
+  }
+
+  .more-menu button:not(.primary) {
+    padding-inline: 0.8rem;
   }
 }
 
