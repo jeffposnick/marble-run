@@ -31,7 +31,7 @@ async function main(): Promise<void> {
   const canvas = $<HTMLCanvasElement>("board");
   const announce = createAnnouncer($("status"));
   const stage = createStage(canvas);
-  setupPwa(announce);
+  setupPwa();
 
   const board = new Board();
   board.load(storage.read(STORAGE_KEY) ?? DEMO_BOARD);

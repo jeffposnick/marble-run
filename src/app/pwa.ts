@@ -1,4 +1,4 @@
-import { $ } from "./ui.ts";
+import { $, createAnnouncer } from "./ui.ts";
 
 /** The non-standard install prompt event (Chromium browsers). */
 interface BeforeInstallPromptEvent extends Event {
@@ -7,6 +7,17 @@ interface BeforeInstallPromptEvent extends Event {
 }
 
 type Announce = (message: string) => void;
+
+/**
+ * Screen readers hear toasts through ariaNotify(), or a visually hidden live region where it's
+ * missing. Not the board's status bubble: the toast is already on screen, so that would show the
+ * same message twice.
+ */
+function createToastAnnouncer(): Announce {
+  const doc = document as Document & { ariaNotify?: (message: string) => void };
+  if (typeof doc.ariaNotify === "function") return (message) => doc.ariaNotify!(message);
+  return createAnnouncer($("pwa-announcer"));
+}
 
 function isStandalone(): boolean {
   return (
@@ -111,9 +122,9 @@ async function registerServiceWorker(on: SwHandlers): Promise<void> {
  * Updates never apply on their own: the user chooses "Update" when it suits them, so a new version
  * can't reload the page and interrupt a run mid-build.
  */
-export function setupPwa(announce: Announce): void {
+export function setupPwa(): void {
   if (!("serviceWorker" in navigator)) return;
-  const toast = createToast(announce);
+  const toast = createToast(createToastAnnouncer());
 
   // The dev server builds no service worker, so only production builds register one.
   if (import.meta.env.PROD) {
